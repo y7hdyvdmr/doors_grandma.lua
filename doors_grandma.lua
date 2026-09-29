@@ -1,7 +1,7 @@
 --[[
     ╔══════════════════════════════════════════════════════════╗
-    ║   DOORS HELPER v4.0 — Полный помощник с подсказками     ║
-    ║   Все монстры (Hotel / Mines / Backdoor / Rooms)        ║
+    ║   DOORS HELPER v5.0 — Мега-помощник (Все этажи 2026)     ║
+    ║   Отель / Шахты / Задверье / Комнаты / Архивы           ║
     ╚══════════════════════════════════════════════════════════╝
 --]]
 
@@ -29,61 +29,97 @@ local CONFIG = {
     ShowLog           = true,
     ShowHealthBar     = true,
     ShowSessionTimer  = true,
-    ShowRoomNumber    = true,
     AutoHints         = true,
     AutoHintInterval  = 25,
     PlaySoundOnThreat = true,
     SoundVolume       = 0.5,
 
-    HighlightDoors     = true,
-    HighlightKeys      = true,
-    HighlightHideSpots = true,
-    HighlightNearestHide = true,
+    WarnRush           = true,
+    WarnAmbush         = true,
+    WarnScreech        = true,
+    WarnEyes           = true,
+    WarnDupe           = true,
+    WarnHide           = true,
+    WarnGlitch         = true,
+    WarnFigure         = true,
+    WarnSeek           = true,
+    WarnHalt           = true,
+    WarnTimothy        = true,
+    WarnGiggle         = true,
+    WarnGloombats      = true,
+    WarnGrumble        = true,
+    WarnHaste          = true,
+    WarnBlitz          = true,
+    WarnLookman        = true,
+    WarnHoncho         = true,
+    WarnRansom         = true,
 
-    WarnAll = true,
-    ChatPrefix = "[🧭 Помощник]",
+    ChatPrefix         = "[🧭 Помощник]",
 }
 
 -- ============================================================
---                    ТАБЛИЦА ВСЕХ СУЩНОСТЕЙ
+--        ТАБЛИЦА ВСЕХ СУЩНОСТЕЙ (Отель, Шахты, Задверье, Архивы)
 -- ============================================================
 local ENTITIES = {
-    -- The Hotel / The Mines
-    ["rush"]     = {name="Rush",     text="🏃 RUSH! СВЕТ МИГАЕТ! БЕГИ В ШКАФ И ЖДИ!", color=Color3.fromRGB(255,50,50)},
-    ["ambush"]   = {name="Ambush",   text="👥 AMBUSH! НЕ ВЫХОДИ ИЗ ШКАФА! ОН ВЕРНЁТСЯ!", color=Color3.fromRGB(255,30,30)},
-    ["screech"]  = {name="Screech",  text="👂 SCREECH! ТЫ СЛЫШИШЬ 'PSST'? ОБЕРНИСЬ И ПОСМОТРИ НА НЕГО!", color=Color3.fromRGB(180,100,255)},
-    ["eyes"]     = {name="Eyes",     text="👁 EYES! НЕ СМОТРИ НА ГЛАЗА! ОПУСТИ ВЗГЛЯД!", color=Color3.fromRGB(150,200,255)},
-    ["dupe"]     = {name="Dupe",     text="🌀 DUPE! ПРОВЕРЬ НОМЕР ДВЕРИ! НЕ ОТКРЫВАЙ ФАЛЬШИВУЮ!", color=Color3.fromRGB(255,200,60)},
-    ["hide"]     = {name="Hide",     text="🙈 HIDE! ТЫ СЛИШКОМ ДОЛГО В ШКАФУ! ВЫХОДИ!", color=Color3.fromRGB(120,60,60)},
-    ["glitch"]   = {name="Glitch",   text="📺 GLITCH! ТЫ ОТСТАЛ! ДОГОНЯЙ ГРУППУ!", color=Color3.fromRGB(255,60,180)},
-    ["figure"]   = {name="Figure",   text="👺 FIGURE! НЕ БЕГИ! ПРИСЯДЬ И ИДИ ТИХО!", color=Color3.fromRGB(150,0,0)},
-    ["seek"]     = {name="Seek",     text="🕷 SEEK! БЕГИ ПО СИНЕЙ ДОРОЖКЕ! НЕ ОСТАНАВЛИВАЙСЯ!", color=Color3.fromRGB(255,100,50)},
-    ["halt"]     = {name="Halt",     text="👻 HALT! РАЗВЕРНИСЬ И БЕГИ В ОБРАТНУЮ СТОРОНУ!", color=Color3.fromRGB(100,200,255)},
-    ["timothy"]  = {name="Timothy",  text="🕷 TIMOTHY! ОСТОРОЖНО С ЯЩИКАМИ! ОН ВЫПРЫГИВАЕТ!", color=Color3.fromRGB(200,100,100)},
-    ["jack"]     = {name="Jack",     text="😈 JACK! ОН БЕЗВРЕДЕН, ПРОСТО ПУГАЕТ!", color=Color3.fromRGB(255,100,100)},
-    ["snare"]    = {name="Snare",    text="🪤 SNARE! СМОТРИ ПОД НОГИ! НЕ НАСТУПАЙ!", color=Color3.fromRGB(180,120,60)},
-    ["giggle"]   = {name="Giggle",   text="😂 GIGGLE! ОН НА ПОТОЛКЕ! НЕ ПРОХОДИ ПОД НИМ!", color=Color3.fromRGB(255,180,80)},
-    ["grumble"]  = {name="Grumble",  text="😤 GRUMBLE! АКТИВИРУЙ ВСЕ ИСТОЧНИКИ ПИТАНИЯ! ОН ОПАСЕН!", color=Color3.fromRGB(200,80,80)},
-    ["gloombats"]= {name="Gloombats",text="🦇 GLOOMBATS! НЕ ИСПОЛЬЗУЙ СВЕТ! ОНИ АТАКУЮТ!", color=Color3.fromRGB(80,80,120)},
-    ["dread"]    = {name="Dread",    text="🕷 DREAD! ПРОДОЛЖАЙ ДВИЖЕНИЕ! НЕ ОСТАНАВЛИВАЙСЯ!", color=Color3.fromRGB(100,50,80)},
-    ["seek chase"]={name="Seek Chase",text="🕷 SEEK CHASE! БЕГИ ПО СИНЕЙ ДОРОЖКЕ!", color=Color3.fromRGB(255,100,50)},
-    ["lookman"]  = {name="Lookman",  text="👀 LOOKMAN! ОПУСТИ ВЗГЛЯД В ПОЛ! НЕ СМОТРИ НА НЕГО!", color=Color3.fromRGB(200,150,150)},
-    ["window"]   = {name="Window",   text="🪟 WINDOW! НЕ СМОТРИ В ОКНО!", color=Color3.fromRGB(150,150,200)},
-    ["shadow"]   = {name="Shadow",   text="🌑 SHADOW! ОН ПРОХОДИТ МИМО, НЕ МЕШАЙ!", color=Color3.fromRGB(80,80,120)},
-    ["blitz"]    = {name="Blitz",    text="⚡ BLITZ! СВЕТ МИГАЕТ! БЫСТРО В ШКАФ!", color=Color3.fromRGB(100,255,100)},
-    ["haste"]    = {name="Haste",    text="⏰ HASTE! ИЩИ РЫЧАГ! ВРЕМЯ ИСТЕКАЕТ!", color=Color3.fromRGB(255,60,60)},
-    ["a-60"]     = {name="A-60",     text="🅰️ A-60! ИДИ В ШКАФ! СЛУШАЙ КРИК!", color=Color3.fromRGB(255,80,80)},
-    ["a-90"]     = {name="A-90",     text="🅰️ A-90! ЗАМРИ! НЕ ДВИГАЙСЯ!", color=Color3.fromRGB(255,120,80)},
-    ["a-120"]    = {name="A-120",    text="🅰️ A-120! ПРЯЧЬСЯ! ОН ПОЯВИТСЯ СПЕРЕДИ!", color=Color3.fromRGB(255,40,40)},
-    ["void"]     = {name="Void",     text="🕳️ VOID! НЕ СТОЙ НА МЕСТЕ! УХОДИ!", color=Color3.fromRGB(50,50,50)},
-    ["seek eyes"]={name="Seek Eyes", text="👁 EYES НА СТЕНЕ! ЭТО НАЧАЛО ПОГОНИ!", color=Color3.fromRGB(150,200,255)},
+    -- ===== ОТЕЛЬ / ГОСТИНИЦА =====
+    ["rush"]      = {name="Rush", text="🏃 RUSH! СВЕТ МИГАЕТ! БЕГИ В ШКАФ И ЖДИ!", color=Color3.fromRGB(255,50,50)},
+    ["ambush"]    = {name="Ambush", text="👥 AMBUSH! НЕ ВЫХОДИ ИЗ ШКАФА! ОН ВЕРНЁТСЯ!", color=Color3.fromRGB(255,30,30)},
+    ["screech"]   = {name="Screech", text="👂 SCREECH! ТЫ СЛЫШИШЬ 'PSST'? ОБЕРНИСЬ И ПОСМОТРИ НА НЕГО!", color=Color3.fromRGB(180,100,255)},
+    ["eyes"]      = {name="Eyes", text="👁 EYES! НЕ СМОТРИ НА ГЛАЗА! ОПУСТИ ВЗГЛЯД!", color=Color3.fromRGB(150,200,255)},
+    ["dupe"]      = {name="Dupe", text="🌀 DUPE! ПРОВЕРЬ НОМЕР ДВЕРИ! НЕ ОТКРЫВАЙ ФАЛЬШИВУЮ!", color=Color3.fromRGB(255,200,60)},
+    ["hide"]      = {name="Hide", text="🙈 HIDE! ТЫ СЛИШКОМ ДОЛГО В ШКАФУ! ВЫХОДИ!", color=Color3.fromRGB(120,60,60)},
+    ["glitch"]    = {name="Glitch", text="📺 GLITCH! ТЫ ОТСТАЛ! ДОГОНЯЙ ГРУППУ!", color=Color3.fromRGB(255,60,180)},
+    ["figure"]    = {name="Figure", text="👺 FIGURE! ПРИСЯДЬ И ИДИ ТИХО! СЛУШАЙ СВОИ ШАГИ!", color=Color3.fromRGB(150,0,0)},
+    ["seek"]      = {name="Seek", text="🕷 SEEK! БЕГИ ПО СИНЕЙ ДОРОЖКЕ! НЕ ОСТАНАВЛИВАЙСЯ!", color=Color3.fromRGB(255,100,50)},
+    ["halt"]      = {name="Halt", text="👻 HALT! РАЗВЕРНИСЬ И БЕГИ В ОБРАТНУЮ СТОРОНУ!", color=Color3.fromRGB(100,200,255)},
+    ["timothy"]   = {name="Timothy", text="🕷 TIMOTHY! ОСТОРОЖНО С ЯЩИКАМИ! ОН ВЫПРЫГИВАЕТ!", color=Color3.fromRGB(200,100,100)},
+    ["jack"]      = {name="Jack", text="😈 JACK! ОН БЕЗВРЕДЕН, ПРОСТО ПУГАЕТ!", color=Color3.fromRGB(255,100,100)},
+    ["snare"]     = {name="Snare", text="🪤 SNARE! СМОТРИ ПОД НОГИ! НЕ НАСТУПАЙ!", color=Color3.fromRGB(180,120,60)},
+    ["sally"]     = {name="Sally", text="🪟 SALLY! НЕ СМОТРИ В ОКНО!", color=Color3.fromRGB(255,150,200)},
+    ["dread"]     = {name="Dread", text="🕷 DREAD! ПРОДОЛЖАЙ ДВИЖЕНИЕ! НЕ ОСТАНАВЛИВАЙСЯ!", color=Color3.fromRGB(100,50,80)},
+    ["void"]      = {name="Void", text="🕳️ VOID! НЕ СТОЙ НА МЕСТЕ! УХОДИ!", color=Color3.fromRGB(50,50,50)},
+    ["shadow"]    = {name="Shadow", text="🌑 SHADOW! ОН ПРОХОДИТ МИМО, НЕ МЕШАЙ!", color=Color3.fromRGB(80,80,120)},
+
+    -- ===== ШАХТЫ (The Mines) =====
+    ["giggle"]    = {name="Giggle", text="😂 GIGGLE! ОН НА ПОТОЛКЕ! НЕ ПРОХОДИ ПОД НИМ!", color=Color3.fromRGB(255,180,80)},
+    ["gloombats"] = {name="Gloombats", text="🦇 GLOOMBATS! НЕ ИСПОЛЬЗУЙ СВЕТ! ОНИ АТАКУЮТ!", color=Color3.fromRGB(80,80,120)},
+    ["grumble"]   = {name="Grumble", text="😤 GRUMBLE! АКТИВИРУЙ ВСЕ ИСТОЧНИКИ ПИТАНИЯ! ОН ОПАСЕН!", color=Color3.fromRGB(200,80,80)},
+    ["queen grumble"]= {name="Queen Grumble", text="👑 QUEEN GRUMBLE! БЕГИ К ЛИФТУ! НЕ ОГЛЯДЫВАЙСЯ!", color=Color3.fromRGB(255,80,80)},
+    ["louie"]     = {name="Louie", text="🍄 LOUIE! ОН ДРУЖЕЛЮБНЫЙ! НЕ АТАКУЙ ЕГО!", color=Color3.fromRGB(100,200,100)},
+
+    -- ===== ЗАДВЕРЬЕ (The Backdoor) =====
+    ["haste"]     = {name="Haste", text="⏰ HASTE! ВРЕМЯ ВЫШЛО! ИЩИ РЫЧАГ!", color=Color3.fromRGB(255,60,60)},
+    ["blitz"]     = {name="Blitz", text="⚡ BLITZ! СВЕТ МИГАЕТ! БЫСТРО В ШКАФ!", color=Color3.fromRGB(100,255,100)},
+    ["lookman"]   = {name="Lookman", text="👀 LOOKMAN! ОПУСТИ ВЗГЛЯД В ПОЛ! НЕ СМОТРИ НА НЕГО!", color=Color3.fromRGB(200,150,150)},
+
+    -- ===== АРХИВЫ (The Archives) =====
+    ["honcho"]    = {name="Honcho", text="🕴️ HONCHO! НЕ СМОТРИ НА НЕГО! ЗАКРЫВАЙ ДВЕРИ!", color=Color3.fromRGB(255,200,100)},
+    ["ransom"]    = {name="Ransom", text="📄 RANSOM! НЕ ДВИГАЙСЯ! ПЕРЕЖДИ!", color=Color3.fromRGB(255,150,150)},
+    ["drone"]     = {name="Drone", text="📝 DRONE! НЕ ПОДХОДИ БЛИЗКО! ОБХОДИ СТОРОНОЙ!", color=Color3.fromRGB(200,200,200)},
+    ["forget-me-not"] = {name="Forget-Me-Not", text="🌸 FORGET-ME-NOT! ЗАПОМИНАЙ КОМНАТУ! ИДИ ВПЕРЁД ИЛИ НАЗАД!", color=Color3.fromRGB(100,255,200)},
+    ["teller"]    = {name="Teller", text="🎫 TELLER! ВОЗЬМИ ТАЛОН! ВЕРНИ, КОГДА НОМЕР СОВПАДЁТ!", color=Color3.fromRGB(150,150,255)},
+    ["alma"]      = {name="Alma", text="🌑 ALMA! ОТВЕРНИСЬ ИЛИ УКЛОНЯЙСЯ!", color=Color3.fromRGB(80,80,80)},
+    ["noise"]     = {name="Noise", text="📺 NOISE! ОН ВЫЛЕЗАЕТ ИЗ ТЕЛЕВИЗОРА! БЕГИ!", color=Color3.fromRGB(200,100,255)},
+
+    -- ===== КОМНАТЫ (The Rooms) =====
+    ["a-60"]      = {name="A-60", text="🅰️ A-60! ИДИ В ШКАФ! СЛУШАЙ КРИК!", color=Color3.fromRGB(255,80,80)},
+    ["a-90"]      = {name="A-90", text="🅰️ A-90! ЗАМРИ! НЕ ДВИГАЙСЯ!", color=Color3.fromRGB(255,120,80)},
+    ["a-120"]     = {name="A-120", text="🅰️ A-120! ПРЯЧЬСЯ! ОН ПОЯВИТСЯ СПЕРЕДИ!", color=Color3.fromRGB(255,40,40)},
+    ["a-200"]     = {name="A-200", text="🅰️ A-200! СЛОЖНЫЙ ВРАГ! ПРЯЧЬСЯ И ЖДИ!", color=Color3.fromRGB(255,0,0)},
 }
 
--- Приоритет вывода (сначала самые опасные)
-local PRIORITY = {"ambush","rush","seek","figure","a-120","a-90","a-60","halt","eyes","screech","dupe","hide","glitch","lookman","blitz","haste","grumble","dread","giggle","gloombats","timothy","snare","jack","window","shadow","void"}
+-- ============================================================
+--        ПРИОРИТЕТ ВЫВОДА (сначала самые опасные)
+-- ============================================================
+local PRIORITY = {
+    "ambush","rush","seek","figure","grumble","queen grumble","a-200","a-120","a-90","a-60",
+    "haste","blitz","honcho","ransom","halt","eyes","screech","dupe","hide","glitch",
+    "lookman","dread","giggle","gloombats","noise","alma","teller","forget-me-not",
+    "drone","timothy","snare","sally","jack","void","shadow","louie"
+}
 
 -- ============================================================
---                    ЛОГИКА ОБНАРУЖЕНИЯ
+--                    СОСТОЯНИЕ
 -- ============================================================
 local State = {
     CurrentRoom = 1,
@@ -93,49 +129,21 @@ local State = {
     SessionStart = tick(),
     DetectedEntities = {},
     LastSeenEntity = {},
-    HighlightedObjs = {},
     SurviveCounts = {},
     CustomHints = {
-        [1]="🔑 Ищи ключ и зажигалку. Открывай двери.",
+        [1]="🔑 Ищи ключ и зажигалку. Открывай двери. Слушай звуки!",
         [2]="🚪 Тёмная комната. Зажги свет. Осторожно — Screech.",
-        [5]="🖼️ Картина. Зажми взгляд на 3 секунды.",
-        [33]="🕷 SEEK! Готовься бежать! Появится синяя дорожка.",
-        [50]="👺 FIGURE! В библиотеке. Присядь и иди тихо. Собирай книги.",
-        [51]="🛒 Магазин Джеффа. Купи Crucifix, Vitamins, Lockpick.",
-        [75]="⚡ Электрощит. Активируй все рубильники.",
-        [100]="👺 FIGURE СНОВА! Финальная битва. Иди тихо, не шуми!",
-        [150]="😤 GRUMBLE! В шахтах. Активируй питание!",
+        [5]="🖼️ Картина. Зажми взгляд на 3 секунды, чтобы получить подсказку.",
+        [10]="👥 Здесь впервые может появиться Ambush. Будь готов бежать в шкаф!",
+        [33]="🕷 SEEK! Готовься бежать! Появится синяя дорожка. Соберись!",
+        [50]="👺 FIGURE! Библиотека. Присядь и иди ТИХО. Собирай книги, не беги!",
+        [51]="🛒 Магазин Джеффа. Купи Crucifix (Крест), Vitamins (Витамины), Lockpick (Отмычку).",
+        [75]="⚡ Электрощит. Активируй ВСЕ рубильники, иначе застрянешь.",
+        [100]="👺 FIGURE СНОВА! Финальная битва в отеле. Иди тихо, не шуми!",
+        [150]="😤 GRUMBLE! В шахтах. Активируй питание и беги к лифту!",
     },
     DefaultHint = "🔍 Осмотрись. Ищи ключ, свечи, монеты. Слушай звуки!",
 }
-
--- ИСПРАВЛЕНО: Расширенный поиск — вся Workspace + ReplicatedStorage, частичное совпадение
-local function scanForEntities()
-    local found = {}
-    local function check(obj)
-        if not obj or not obj.Name then return end
-        local lname = obj.Name:lower()
-        for key, data in pairs(ENTITIES) do
-            if lname == key or lname:find(key, 1, true) then
-                -- Исключаем ложные срабатывания
-                if not (lname:find("script") or lname:find("sound") or lname:find("gui") or lname:find("light")) then
-                    found[data.name] = true
-                end
-                return
-            end
-        end
-    end
-
-    for _, obj in ipairs(Workspace:GetDescendants()) do
-        pcall(check, obj)
-    end
-    for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
-        pcall(check, obj)
-    end
-
-    State.DetectedEntities = found
-    return found
-end
 
 -- ============================================================
 --                    ХЕЛПЕРЫ
@@ -171,6 +179,35 @@ local function formatTime(s)
 end
 
 -- ============================================================
+--            РАСШИРЕННЫЙ ПОИСК СУЩНОСТЕЙ
+-- ============================================================
+local function scanForEntities()
+    local found = {}
+    local function check(obj)
+        if not obj or not obj.Name then return end
+        local lname = obj.Name:lower()
+        for key, data in pairs(ENTITIES) do
+            if lname == key or lname:find(key, 1, true) then
+                if not (lname:find("script") or lname:find("sound") or lname:find("gui") or lname:find("light")) then
+                    found[data.name] = true
+                end
+                return
+            end
+        end
+    end
+
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        pcall(check, obj)
+    end
+    for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
+        pcall(check, obj)
+    end
+
+    State.DetectedEntities = found
+    return found
+end
+
+-- ============================================================
 --                    UI
 -- ============================================================
 local screenGui = Instance.new("ScreenGui")
@@ -185,8 +222,8 @@ if not okp or not screenGui.Parent then screenGui.Parent = PlayerGui end
 
 -- Лог
 local logContainer = Instance.new("Frame")
-logContainer.Size = UDim2.new(0, 340, 0, 240)
-logContainer.Position = UDim2.new(0, 10, 1, -260)
+logContainer.Size = UDim2.new(0, 360, 0, 260)
+logContainer.Position = UDim2.new(0, 10, 1, -280)
 logContainer.BackgroundTransparency = 1
 logContainer.Parent = screenGui
 
@@ -217,7 +254,7 @@ local function pushLog(text, color)
     local stroke = Instance.new("UIStroke", lbl)
     stroke.Color = color; stroke.Thickness = 1; stroke.Transparency = 0.6
     table.insert(activeLogs, lbl)
-    if #activeLogs > 5 then
+    if #activeLogs > 6 then
         local old = table.remove(activeLogs, 1)
         pcall(function() old:Destroy() end)
     end
@@ -249,7 +286,7 @@ mStroke.Color = Color3.fromRGB(255, 140, 80); mStroke.Thickness = 1.5
 
 -- Панель
 local panel = Instance.new("ScrollingFrame")
-panel.Size = UDim2.new(0, 300, 0, 600)
+panel.Size = UDim2.new(0, 320, 0, 600)
 panel.Position = UDim2.new(0, 82, 0, 20)
 panel.BackgroundColor3 = Color3.fromRGB(25, 18, 18)
 panel.BackgroundTransparency = 0.1
@@ -315,7 +352,7 @@ local titleLbl = Instance.new("TextLabel")
 titleLbl.Size = UDim2.new(1, 0, 0, 24)
 titleLbl.Position = UDim2.new(0, 0, 0, y)
 titleLbl.BackgroundTransparency = 1
-titleLbl.Text = "🚪 DOORS HELPER v4.0"
+titleLbl.Text = "🚪 DOORS HELPER v5.0"
 titleLbl.TextColor3 = Color3.fromRGB(255, 200, 150)
 titleLbl.Font = Enum.Font.GothamBold
 titleLbl.TextSize = 13
@@ -446,7 +483,7 @@ end
 local function sayCurrentHint()
     local hint = State.CustomHints[State.CurrentRoom] or State.DefaultHint
     say(hint)
-    if hintLbl then hintLbl.Text = hint:sub(1, 40) end
+    if hintLbl then hintLbl.Text = hint:sub(1, 45) end
 end
 
 local function showBigWarning(text, color, duration)
@@ -554,7 +591,7 @@ mainBtn.Activated:Connect(function() panel.Visible = not panel.Visible end)
 local helperConn = RunService.Heartbeat:Connect(function() pcall(tickHelper) end)
 
 task.wait(0.5)
-say("✅ Doors Helper v4.0 загружен! Все сущности отслеживаются.")
+say("✅ Doors Helper v5.0 загружен! Отслеживается " .. #PRIORITY .. " сущностей.")
 task.wait(2)
 sayCurrentHint()
 
@@ -564,4 +601,4 @@ function DH.unload()
     GENV._DoorsHelper = nil
 end
 
-print("[Doors Helper v4.0] Загружено. Отслеживается " .. #PRIORITY .. " сущностей.")
+print("[Doors Helper v5.0] Загружено. Отслеживается " .. #PRIORITY .. " сущностей.")
