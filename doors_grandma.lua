@@ -1,6 +1,6 @@
 --[[
     ╔══════════════════════════════════════════════════════════╗
-    ║   DOORS HELPER v5.0 — Мега-помощник (Все этажи 2026)     ║
+    ║   DOORS HELPER v5.1 — Оптимизированный (Все этажи 2026)  ║
     ║   Отель / Шахты / Задверье / Комнаты / Архивы           ║
     ╚══════════════════════════════════════════════════════════╝
 --]]
@@ -30,87 +30,71 @@ local CONFIG = {
     ShowHealthBar     = true,
     ShowSessionTimer  = true,
     AutoHints         = true,
-    AutoHintInterval  = 25,
+    AutoHintInterval  = 40,        -- реже = меньше лагов
     PlaySoundOnThreat = true,
     SoundVolume       = 0.5,
 
-    WarnRush           = true,
-    WarnAmbush         = true,
-    WarnScreech        = true,
-    WarnEyes           = true,
-    WarnDupe           = true,
-    WarnHide           = true,
-    WarnGlitch         = true,
-    WarnFigure         = true,
-    WarnSeek           = true,
-    WarnHalt           = true,
-    WarnTimothy        = true,
-    WarnGiggle         = true,
-    WarnGloombats      = true,
-    WarnGrumble        = true,
-    WarnHaste          = true,
-    WarnBlitz          = true,
-    WarnLookman        = true,
-    WarnHoncho         = true,
-    WarnRansom         = true,
+    -- Оптимизация
+    ScanInterval      = 0.5,       -- как часто искать монстров (сек)
+    TickInterval      = 0.1,       -- как часто тикает главный цикл (сек)
+    HudInterval       = 0.5,       -- как часто обновлять HUD (сек)
+    MaxLogs           = 4,         -- сколько строк лога держать
 
-    ChatPrefix         = "[🧭 Помощник]",
+    ChatPrefix        = "[🧭 Помощник]",
 }
 
 -- ============================================================
---        ТАБЛИЦА ВСЕХ СУЩНОСТЕЙ (Отель, Шахты, Задверье, Архивы)
+--        ТАБЛИЦА ВСЕХ СУЩНОСТЕЙ
 -- ============================================================
 local ENTITIES = {
-    -- ===== ОТЕЛЬ / ГОСТИНИЦА =====
-    ["rush"]      = {name="Rush", text="🏃 RUSH! СВЕТ МИГАЕТ! БЕГИ В ШКАФ И ЖДИ!", color=Color3.fromRGB(255,50,50)},
+    -- ОТЕЛЬ
+    ["rush"]      = {name="Rush", text="🏃 RUSH! СВЕТ МИГАЕТ! БЕГИ В ШКАФ!", color=Color3.fromRGB(255,50,50)},
     ["ambush"]    = {name="Ambush", text="👥 AMBUSH! НЕ ВЫХОДИ ИЗ ШКАФА! ОН ВЕРНЁТСЯ!", color=Color3.fromRGB(255,30,30)},
-    ["screech"]   = {name="Screech", text="👂 SCREECH! ТЫ СЛЫШИШЬ 'PSST'? ОБЕРНИСЬ И ПОСМОТРИ НА НЕГО!", color=Color3.fromRGB(180,100,255)},
-    ["eyes"]      = {name="Eyes", text="👁 EYES! НЕ СМОТРИ НА ГЛАЗА! ОПУСТИ ВЗГЛЯД!", color=Color3.fromRGB(150,200,255)},
+    ["screech"]   = {name="Screech", text="👂 SCREECH! 'PSST'? ОБЕРНИСЬ И ПОСМОТРИ!", color=Color3.fromRGB(180,100,255)},
+    ["eyes"]      = {name="Eyes", text="👁 EYES! НЕ СМОТРИ НА ГЛАЗА!", color=Color3.fromRGB(150,200,255)},
     ["dupe"]      = {name="Dupe", text="🌀 DUPE! ПРОВЕРЬ НОМЕР ДВЕРИ! НЕ ОТКРЫВАЙ ФАЛЬШИВУЮ!", color=Color3.fromRGB(255,200,60)},
-    ["hide"]      = {name="Hide", text="🙈 HIDE! ТЫ СЛИШКОМ ДОЛГО В ШКАФУ! ВЫХОДИ!", color=Color3.fromRGB(120,60,60)},
-    ["glitch"]    = {name="Glitch", text="📺 GLITCH! ТЫ ОТСТАЛ! ДОГОНЯЙ ГРУППУ!", color=Color3.fromRGB(255,60,180)},
-    ["figure"]    = {name="Figure", text="👺 FIGURE! ПРИСЯДЬ И ИДИ ТИХО! СЛУШАЙ СВОИ ШАГИ!", color=Color3.fromRGB(150,0,0)},
-    ["seek"]      = {name="Seek", text="🕷 SEEK! БЕГИ ПО СИНЕЙ ДОРОЖКЕ! НЕ ОСТАНАВЛИВАЙСЯ!", color=Color3.fromRGB(255,100,50)},
-    ["halt"]      = {name="Halt", text="👻 HALT! РАЗВЕРНИСЬ И БЕГИ В ОБРАТНУЮ СТОРОНУ!", color=Color3.fromRGB(100,200,255)},
-    ["timothy"]   = {name="Timothy", text="🕷 TIMOTHY! ОСТОРОЖНО С ЯЩИКАМИ! ОН ВЫПРЫГИВАЕТ!", color=Color3.fromRGB(200,100,100)},
-    ["jack"]      = {name="Jack", text="😈 JACK! ОН БЕЗВРЕДЕН, ПРОСТО ПУГАЕТ!", color=Color3.fromRGB(255,100,100)},
-    ["snare"]     = {name="Snare", text="🪤 SNARE! СМОТРИ ПОД НОГИ! НЕ НАСТУПАЙ!", color=Color3.fromRGB(180,120,60)},
+    ["hide"]      = {name="Hide", text="🙈 HIDE! СЛИШКОМ ДОЛГО В ШКАФУ!", color=Color3.fromRGB(120,60,60)},
+    ["glitch"]    = {name="Glitch", text="📺 GLITCH! ТЫ ОТСТАЛ! ДОГОНЯЙ!", color=Color3.fromRGB(255,60,180)},
+    ["figure"]    = {name="Figure", text="👺 FIGURE! ПРИСЯДЬ И ИДИ ТИХО!", color=Color3.fromRGB(150,0,0)},
+    ["seek"]      = {name="Seek", text="🕷 SEEK! БЕГИ ПО СИНЕЙ ДОРОЖКЕ!", color=Color3.fromRGB(255,100,50)},
+    ["halt"]      = {name="Halt", text="👻 HALT! РАЗВЕРНИСЬ И БЕГИ НАЗАД!", color=Color3.fromRGB(100,200,255)},
+    ["timothy"]   = {name="Timothy", text="🕷 TIMOTHY! ОСТОРОЖНО С ЯЩИКАМИ!", color=Color3.fromRGB(200,100,100)},
+    ["jack"]      = {name="Jack", text="😈 JACK! БЕЗВРЕДЕН, ПРОСТО ПУГАЕТ!", color=Color3.fromRGB(255,100,100)},
+    ["snare"]     = {name="Snare", text="🪤 SNARE! СМОТРИ ПОД НОГИ!", color=Color3.fromRGB(180,120,60)},
     ["sally"]     = {name="Sally", text="🪟 SALLY! НЕ СМОТРИ В ОКНО!", color=Color3.fromRGB(255,150,200)},
-    ["dread"]     = {name="Dread", text="🕷 DREAD! ПРОДОЛЖАЙ ДВИЖЕНИЕ! НЕ ОСТАНАВЛИВАЙСЯ!", color=Color3.fromRGB(100,50,80)},
-    ["void"]      = {name="Void", text="🕳️ VOID! НЕ СТОЙ НА МЕСТЕ! УХОДИ!", color=Color3.fromRGB(50,50,50)},
-    ["shadow"]    = {name="Shadow", text="🌑 SHADOW! ОН ПРОХОДИТ МИМО, НЕ МЕШАЙ!", color=Color3.fromRGB(80,80,120)},
+    ["dread"]     = {name="Dread", text="🕷 DREAD! НЕ ОСТАНАВЛИВАЙСЯ!", color=Color3.fromRGB(100,50,80)},
+    ["void"]      = {name="Void", text="🕳️ VOID! НЕ СТОЙ НА МЕСТЕ!", color=Color3.fromRGB(50,50,50)},
+    ["shadow"]    = {name="Shadow", text="🌑 SHADOW! ПРОПУСТИ ЕГО!", color=Color3.fromRGB(80,80,120)},
 
-    -- ===== ШАХТЫ (The Mines) =====
-    ["giggle"]    = {name="Giggle", text="😂 GIGGLE! ОН НА ПОТОЛКЕ! НЕ ПРОХОДИ ПОД НИМ!", color=Color3.fromRGB(255,180,80)},
-    ["gloombats"] = {name="Gloombats", text="🦇 GLOOMBATS! НЕ ИСПОЛЬЗУЙ СВЕТ! ОНИ АТАКУЮТ!", color=Color3.fromRGB(80,80,120)},
-    ["grumble"]   = {name="Grumble", text="😤 GRUMBLE! АКТИВИРУЙ ВСЕ ИСТОЧНИКИ ПИТАНИЯ! ОН ОПАСЕН!", color=Color3.fromRGB(200,80,80)},
-    ["queen grumble"]= {name="Queen Grumble", text="👑 QUEEN GRUMBLE! БЕГИ К ЛИФТУ! НЕ ОГЛЯДЫВАЙСЯ!", color=Color3.fromRGB(255,80,80)},
-    ["louie"]     = {name="Louie", text="🍄 LOUIE! ОН ДРУЖЕЛЮБНЫЙ! НЕ АТАКУЙ ЕГО!", color=Color3.fromRGB(100,200,100)},
+    -- ШАХТЫ
+    ["giggle"]    = {name="Giggle", text="😂 GIGGLE! ОН НА ПОТОЛКЕ!", color=Color3.fromRGB(255,180,80)},
+    ["gloombats"] = {name="Gloombats", text="🦇 GLOOMBATS! НЕ ИСПОЛЬЗУЙ СВЕТ!", color=Color3.fromRGB(80,80,120)},
+    ["grumble"]   = {name="Grumble", text="😤 GRUMBLE! АКТИВИРУЙ ВСЕ ЩИТЫ!", color=Color3.fromRGB(200,80,80)},
+    ["queen grumble"] = {name="Queen Grumble", text="👑 QUEEN GRUMBLE! БЕГИ К ЛИФТУ!", color=Color3.fromRGB(255,80,80)},
+    ["louie"]     = {name="Louie", text="🍄 LOUIE! ОН ДРУЖЕЛЮБНЫЙ!", color=Color3.fromRGB(100,200,100)},
 
-    -- ===== ЗАДВЕРЬЕ (The Backdoor) =====
+    -- ЗАДВЕРЬЕ
     ["haste"]     = {name="Haste", text="⏰ HASTE! ВРЕМЯ ВЫШЛО! ИЩИ РЫЧАГ!", color=Color3.fromRGB(255,60,60)},
-    ["blitz"]     = {name="Blitz", text="⚡ BLITZ! СВЕТ МИГАЕТ! БЫСТРО В ШКАФ!", color=Color3.fromRGB(100,255,100)},
-    ["lookman"]   = {name="Lookman", text="👀 LOOKMAN! ОПУСТИ ВЗГЛЯД В ПОЛ! НЕ СМОТРИ НА НЕГО!", color=Color3.fromRGB(200,150,150)},
+    ["blitz"]     = {name="Blitz", text="⚡ BLITZ! СВЕТ МИГАЕТ! В ШКАФ!", color=Color3.fromRGB(100,255,100)},
+    ["lookman"]   = {name="Lookman", text="👀 LOOKMAN! ОПУСТИ ВЗГЛЯД!", color=Color3.fromRGB(200,150,150)},
 
-    -- ===== АРХИВЫ (The Archives) =====
-    ["honcho"]    = {name="Honcho", text="🕴️ HONCHO! НЕ СМОТРИ НА НЕГО! ЗАКРЫВАЙ ДВЕРИ!", color=Color3.fromRGB(255,200,100)},
-    ["ransom"]    = {name="Ransom", text="📄 RANSOM! НЕ ДВИГАЙСЯ! ПЕРЕЖДИ!", color=Color3.fromRGB(255,150,150)},
-    ["drone"]     = {name="Drone", text="📝 DRONE! НЕ ПОДХОДИ БЛИЗКО! ОБХОДИ СТОРОНОЙ!", color=Color3.fromRGB(200,200,200)},
-    ["forget-me-not"] = {name="Forget-Me-Not", text="🌸 FORGET-ME-NOT! ЗАПОМИНАЙ КОМНАТУ! ИДИ ВПЕРЁД ИЛИ НАЗАД!", color=Color3.fromRGB(100,255,200)},
-    ["teller"]    = {name="Teller", text="🎫 TELLER! ВОЗЬМИ ТАЛОН! ВЕРНИ, КОГДА НОМЕР СОВПАДЁТ!", color=Color3.fromRGB(150,150,255)},
-    ["alma"]      = {name="Alma", text="🌑 ALMA! ОТВЕРНИСЬ ИЛИ УКЛОНЯЙСЯ!", color=Color3.fromRGB(80,80,80)},
-    ["noise"]     = {name="Noise", text="📺 NOISE! ОН ВЫЛЕЗАЕТ ИЗ ТЕЛЕВИЗОРА! БЕГИ!", color=Color3.fromRGB(200,100,255)},
+    -- АРХИВЫ
+    ["honcho"]    = {name="Honcho", text="🕴️ HONCHO! НЕ СМОТРИ НА НЕГО!", color=Color3.fromRGB(255,200,100)},
+    ["ransom"]    = {name="Ransom", text="📄 RANSOM! ЗАМРИ!", color=Color3.fromRGB(255,150,150)},
+    ["drone"]     = {name="Drone", text="📝 DRONE! ОБХОДИ СТОРОНОЙ!", color=Color3.fromRGB(200,200,200)},
+    ["forget-me-not"] = {name="Forget-Me-Not", text="🌸 ЗАПОМИНАЙ КОМНАТУ!", color=Color3.fromRGB(100,255,200)},
+    ["teller"]    = {name="Teller", text="🎫 TELLER! ВОЗЬМИ ТАЛОН!", color=Color3.fromRGB(150,150,255)},
+    ["alma"]      = {name="Alma", text="🌑 ALMA! ОТВЕРНИСЬ!", color=Color3.fromRGB(80,80,80)},
+    ["noise"]     = {name="Noise", text="📺 NOISE! БЕГИ ОТ ТЕЛЕВИЗОРА!", color=Color3.fromRGB(200,100,255)},
 
-    -- ===== КОМНАТЫ (The Rooms) =====
-    ["a-60"]      = {name="A-60", text="🅰️ A-60! ИДИ В ШКАФ! СЛУШАЙ КРИК!", color=Color3.fromRGB(255,80,80)},
+    -- КОМНАТЫ
+    ["a-60"]      = {name="A-60", text="🅰️ A-60! В ШКАФ! СЛУШАЙ КРИК!", color=Color3.fromRGB(255,80,80)},
     ["a-90"]      = {name="A-90", text="🅰️ A-90! ЗАМРИ! НЕ ДВИГАЙСЯ!", color=Color3.fromRGB(255,120,80)},
-    ["a-120"]     = {name="A-120", text="🅰️ A-120! ПРЯЧЬСЯ! ОН ПОЯВИТСЯ СПЕРЕДИ!", color=Color3.fromRGB(255,40,40)},
-    ["a-200"]     = {name="A-200", text="🅰️ A-200! СЛОЖНЫЙ ВРАГ! ПРЯЧЬСЯ И ЖДИ!", color=Color3.fromRGB(255,0,0)},
+    ["a-120"]     = {name="A-120", text="🅰️ A-120! ПРЯЧЬСЯ! ОН СПЕРЕДИ!", color=Color3.fromRGB(255,40,40)},
+    ["a-200"]     = {name="A-200", text="🅰️ A-200! СЛОЖНЫЙ! ПРЯЧЬСЯ!", color=Color3.fromRGB(255,0,0)},
 }
 
--- ============================================================
---        ПРИОРИТЕТ ВЫВОДА (сначала самые опасные)
--- ============================================================
+-- Приоритет вывода
 local PRIORITY = {
     "ambush","rush","seek","figure","grumble","queen grumble","a-200","a-120","a-90","a-60",
     "haste","blitz","honcho","ransom","halt","eyes","screech","dupe","hide","glitch",
@@ -126,21 +110,29 @@ local State = {
     HighestRoom = 1,
     LastWarnedEntity = nil,
     LastWarnTime = 0,
+    LastAutoHintTime = 0,
+    LastHudUpdate = 0,
+    LastTick = 0,
+    LastRoomRead = 0,
+    LastScan = 0,
     SessionStart = tick(),
     DetectedEntities = {},
     LastSeenEntity = {},
     SurviveCounts = {},
+    CachedRoom = 1,
+    EntityCache = {},
+    CacheDirty = false,
     CustomHints = {
-        [1]="🔑 Ищи ключ и зажигалку. Открывай двери. Слушай звуки!",
+        [1]="🔑 Ищи ключ и зажигалку. Открывай двери!",
         [2]="🚪 Тёмная комната. Зажги свет. Осторожно — Screech.",
-        [5]="🖼️ Картина. Зажми взгляд на 3 секунды, чтобы получить подсказку.",
-        [10]="👥 Здесь впервые может появиться Ambush. Будь готов бежать в шкаф!",
-        [33]="🕷 SEEK! Готовься бежать! Появится синяя дорожка. Соберись!",
-        [50]="👺 FIGURE! Библиотека. Присядь и иди ТИХО. Собирай книги, не беги!",
-        [51]="🛒 Магазин Джеффа. Купи Crucifix (Крест), Vitamins (Витамины), Lockpick (Отмычку).",
-        [75]="⚡ Электрощит. Активируй ВСЕ рубильники, иначе застрянешь.",
-        [100]="👺 FIGURE СНОВА! Финальная битва в отеле. Иди тихо, не шуми!",
-        [150]="😤 GRUMBLE! В шахтах. Активируй питание и беги к лифту!",
+        [5]="🖼️ Картина. Зажми взгляд на 3 сек.",
+        [10]="👥 Здесь впервые может появиться Ambush. Будь готов!",
+        [33]="🕷 SEEK! Готовься бежать! Появится синяя дорожка.",
+        [50]="👺 FIGURE! Библиотека. Присядь и иди ТИХО. Собирай книги!",
+        [51]="🛒 Магазин Джеффа. Купи Crucifix, Vitamins, Lockpick.",
+        [75]="⚡ Электрощит. Активируй ВСЕ рубильники!",
+        [100]="👺 FIGURE СНОВА! Иди тихо, не шуми!",
+        [150]="😤 GRUMBLE! Активируй питание и беги к лифту!",
     },
     DefaultHint = "🔍 Осмотрись. Ищи ключ, свечи, монеты. Слушай звуки!",
 }
@@ -163,10 +155,18 @@ local function protectGui(gui)
     elseif rawget(GENV, "protect_gui") then pcall(GENV.protect_gui, gui) end
 end
 
+-- Читаем номер комнаты реже
 local function getRoomNumber()
+    local now = tick()
+    if now - State.LastRoomRead < 0.5 then
+        return State.CachedRoom
+    end
+    State.LastRoomRead = now
     local ok, val = pcall(function() return ReplicatedStorage.GameData.LatestRoom.Value end)
-    if ok and type(val) == "number" then return val end
-    return State.CurrentRoom
+    if ok and type(val) == "number" then
+        State.CachedRoom = val
+    end
+    return State.CachedRoom
 end
 
 local function getHum()
@@ -179,33 +179,59 @@ local function formatTime(s)
 end
 
 -- ============================================================
---            РАСШИРЕННЫЙ ПОИСК СУЩНОСТЕЙ
+--        ОПТИМИЗИРОВАННЫЙ ПОИСК СУЩНОСТЕЙ (кэш + listener)
 -- ============================================================
 local function scanForEntities()
+    local now = tick()
+    if now - State.LastScan < CONFIG.ScanInterval and not State.CacheDirty then
+        return State.EntityCache
+    end
+    State.LastScan = now
+    State.CacheDirty = false
+
     local found = {}
-    local function check(obj)
-        if not obj or not obj.Name then return end
-        local lname = obj.Name:lower()
-        for key, data in pairs(ENTITIES) do
-            if lname == key or lname:find(key, 1, true) then
-                if not (lname:find("script") or lname:find("sound") or lname:find("gui") or lname:find("light")) then
+    -- 1. Только CurrentRooms (там основные сущности)
+    local currentRooms = Workspace:FindFirstChild("CurrentRooms")
+    if currentRooms then
+        for _, obj in ipairs(currentRooms:GetDescendants()) do
+            local lname = obj.Name:lower()
+            for key, data in pairs(ENTITIES) do
+                if lname == key then
                     found[data.name] = true
+                    break
                 end
-                return
+            end
+        end
+    end
+    -- 2. Корневые объекты Workspace (Rush и т.п. часто в корне)
+    for _, obj in ipairs(Workspace:GetChildren()) do
+        local lname = obj.Name:lower()
+        if not lname:find("script") and not lname:find("sound") and not lname:find("gui") then
+            for key, data in pairs(ENTITIES) do
+                if lname == key then
+                    found[data.name] = true
+                    break
+                end
             end
         end
     end
 
-    for _, obj in ipairs(Workspace:GetDescendants()) do
-        pcall(check, obj)
-    end
-    for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
-        pcall(check, obj)
-    end
-
+    State.EntityCache = found
     State.DetectedEntities = found
     return found
 end
+
+-- Помечаем кэш грязным при появлении новой сущности
+Workspace.DescendantAdded:Connect(function(obj)
+    if not obj or not obj.Name then return end
+    local lname = obj.Name:lower()
+    for key, _ in pairs(ENTITIES) do
+        if lname == key then
+            State.CacheDirty = true
+            return
+        end
+    end
+end)
 
 -- ============================================================
 --                    UI
@@ -222,8 +248,8 @@ if not okp or not screenGui.Parent then screenGui.Parent = PlayerGui end
 
 -- Лог
 local logContainer = Instance.new("Frame")
-logContainer.Size = UDim2.new(0, 360, 0, 260)
-logContainer.Position = UDim2.new(0, 10, 1, -280)
+logContainer.Size = UDim2.new(0, 360, 0, 240)
+logContainer.Position = UDim2.new(0, 10, 1, -260)
 logContainer.BackgroundTransparency = 1
 logContainer.Parent = screenGui
 
@@ -234,6 +260,7 @@ logLayout.Padding = UDim.new(0, 4)
 logLayout.Parent = logContainer
 
 local activeLogs = {}
+
 local function pushLog(text, color)
     if not CONFIG.ShowLog then return end
     color = color or Color3.fromRGB(150, 220, 255)
@@ -253,18 +280,17 @@ local function pushLog(text, color)
     Instance.new("UICorner", lbl).CornerRadius = UDim.new(0, 6)
     local stroke = Instance.new("UIStroke", lbl)
     stroke.Color = color; stroke.Thickness = 1; stroke.Transparency = 0.6
+
     table.insert(activeLogs, lbl)
-    if #activeLogs > 6 then
+    if #activeLogs > CONFIG.MaxLogs then
         local old = table.remove(activeLogs, 1)
         pcall(function() old:Destroy() end)
     end
-    task.spawn(function()
-        task.wait(8)
-        pcall(function()
-            TweenService:Create(lbl, TweenInfo.new(0.5), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
-        end)
-        task.wait(0.6)
-        for i, l in ipairs(activeLogs) do if l == lbl then table.remove(activeLogs, i); break end end
+
+    task.delay(7, function()
+        for i, l in ipairs(activeLogs) do
+            if l == lbl then table.remove(activeLogs, i); break end
+        end
         pcall(function() lbl:Destroy() end)
     end)
 end
@@ -352,7 +378,7 @@ local titleLbl = Instance.new("TextLabel")
 titleLbl.Size = UDim2.new(1, 0, 0, 24)
 titleLbl.Position = UDim2.new(0, 0, 0, y)
 titleLbl.BackgroundTransparency = 1
-titleLbl.Text = "🚪 DOORS HELPER v5.0"
+titleLbl.Text = "🚪 DOORS HELPER v5.1"
 titleLbl.TextColor3 = Color3.fromRGB(255, 200, 150)
 titleLbl.Font = Enum.Font.GothamBold
 titleLbl.TextSize = 13
@@ -501,15 +527,16 @@ local function showBigWarning(text, color, duration)
 end
 
 -- ============================================================
---                    ГЛАВНЫЙ ЦИКЛ
+--                    ГЛАВНЫЙ ЦИКЛ (оптимизированный)
 -- ============================================================
-local lastRoomCheck = 0
 local function tickHelper()
     local now = tick()
 
-    -- 1. Определение комнаты
-    if now - lastRoomCheck > 0.5 then
-        lastRoomCheck = now
+    -- === Раз в 0.5 сек: проверка комнаты + сущностей ===
+    if now - (State.LastWarnTime or 0) > 0.5 then
+        State.LastWarnTime = now
+
+        -- Комната
         local roomNum = getRoomNumber()
         if roomNum ~= State.CurrentRoom then
             State.CurrentRoom = roomNum
@@ -519,52 +546,45 @@ local function tickHelper()
                 say(State.CustomHints[State.CurrentRoom])
             end
         end
-    end
 
-    -- 2. Обнаружение сущностей
-    local ents = scanForEntities()
+        -- Сущности
+        local ents = scanForEntities()
 
-    -- Считаем выживания
-    for entName in pairs(State.LastSeenEntity) do
-        if not ents[entName] then
-            local hum = getHum()
-            if hum and hum.Health > 0 then
-                State.SurviveCounts[entName] = (State.SurviveCounts[entName] or 0) + 1
+        -- Считаем выживания
+        for entName in pairs(State.LastSeenEntity) do
+            if not ents[entName] then
+                local hum = getHum()
+                if hum and hum.Health > 0 then
+                    State.SurviveCounts[entName] = (State.SurviveCounts[entName] or 0) + 1
+                end
+                State.LastSeenEntity[entName] = nil
             end
-            State.LastSeenEntity[entName] = nil
+        end
+        for entName in pairs(ents) do
+            State.LastSeenEntity[entName] = true
+        end
+
+        -- Предупреждение
+        local activeWarn = nil
+        for _, key in ipairs(PRIORITY) do
+            local data = ENTITIES[key]
+            if data and ents[data.name] then
+                activeWarn = data
+                break
+            end
+        end
+        if activeWarn and activeWarn.name ~= State.LastWarnedEntity then
+            State.LastWarnedEntity = activeWarn.name
+            showBigWarning(activeWarn.text, activeWarn.color, 3.5)
+            say(activeWarn.text)
+            playThreatSound()
+        elseif not activeWarn then
+            State.LastWarnedEntity = nil
         end
     end
-    for entName in pairs(ents) do
-        State.LastSeenEntity[entName] = true
-    end
 
-    -- 3. Предупреждения по приоритету
-    local activeWarn = nil
-    for _, key in ipairs(PRIORITY) do
-        local data = ENTITIES[key]
-        if data and ents[data.name] then
-            activeWarn = data
-            break
-        end
-    end
-
-    if activeWarn and activeWarn.name ~= State.LastWarnedEntity then
-        State.LastWarnedEntity = activeWarn.name
-        showBigWarning(activeWarn.text, activeWarn.color, 3.5)
-        say(activeWarn.text)
-        playThreatSound()
-    elseif not activeWarn then
-        State.LastWarnedEntity = nil
-    end
-
-    -- 4. Автоподсказки
-    if CONFIG.AutoHints and now - (State.LastAutoHintTime or 0) > CONFIG.AutoHintInterval then
-        State.LastAutoHintTime = now
-        sayCurrentHint()
-    end
-
-    -- 5. HUD
-    if now - (State.LastHudUpdate or 0) > 0.3 then
+    -- === HUD раз в 0.5 сек ===
+    if now - State.LastHudUpdate > CONFIG.HudInterval then
         State.LastHudUpdate = now
         if timeLbl then
             timeLbl.Text = "⏱️ " .. formatTime(now - State.SessionStart)
@@ -584,14 +604,26 @@ local function tickHelper()
             else hpFill.BackgroundColor3 = Color3.fromRGB(220, 50, 50) end
         end
     end
+
+    -- === Автоподсказки ===
+    if CONFIG.AutoHints and now - State.LastAutoHintTime > CONFIG.AutoHintInterval then
+        State.LastAutoHintTime = now
+        sayCurrentHint()
+    end
 end
 
--- Запуск
+-- Запуск (ограничен 10 тиками в сек)
 mainBtn.Activated:Connect(function() panel.Visible = not panel.Visible end)
-local helperConn = RunService.Heartbeat:Connect(function() pcall(tickHelper) end)
+
+local helperConn = RunService.Heartbeat:Connect(function(dt)
+    local now = tick()
+    if now - State.LastTick < CONFIG.TickInterval then return end
+    State.LastTick = now
+    pcall(tickHelper)
+end)
 
 task.wait(0.5)
-say("✅ Doors Helper v5.0 загружен! Отслеживается " .. #PRIORITY .. " сущностей.")
+say("✅ Doors Helper v5.1 загружен! Отслеживается " .. #PRIORITY .. " сущностей.")
 task.wait(2)
 sayCurrentHint()
 
@@ -601,4 +633,4 @@ function DH.unload()
     GENV._DoorsHelper = nil
 end
 
-print("[Doors Helper v5.0] Загружено. Отслеживается " .. #PRIORITY .. " сущностей.")
+print("[Doors Helper v5.1] Загружено. Отслеживается " .. #PRIORITY .. " сущностей.")
